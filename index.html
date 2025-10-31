@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ethan's Browser Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+* {margin:0; padding:0; box-sizing:border-box; font-family:'Poppins', sans-serif;}
+
+body, html {
+  height:100%;
+  width:100%;
+  background:#0f1018;
+  color:#fff;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  overflow:hidden;
+}
+
+#tsparticles { position: fixed; top:0; left:0; width:100%; height:100%; z-index:0; }
+
+.container {
+  position: relative;
+  z-index:1;
+  text-align:center;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(30px) saturate(150%);
+  border-radius: 24px;
+  border: 1px solid rgba(255,255,255,0.1);
+  padding:3rem 4rem;
+  width:90%; max-width:700px;
+  box-shadow:0 25px 80px rgba(0,0,0,0.5);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.container:hover { transform: translateY(-5px); box-shadow: 0 35px 100px rgba(0,0,0,0.6); }
+
+h1 {
+  font-size:2.2rem;
+  margin-bottom:0.5rem;
+  background: linear-gradient(90deg,#a78bfa,#818cf8);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  letter-spacing:0.5px;
+}
+
+.greeting {
+  font-size:1.4rem;
+  font-weight:500;
+  margin-bottom:1.5rem;
+  color:#bcbcd1;
+  opacity:0;
+  transform: translateY(-10px);
+  animation: fadeInSlide 1s forwards;
+}
+
+@keyframes fadeInSlide {
+  to { opacity:1; transform: translateY(0);}
+}
+
+.clock {
+  color:#bcbcd1;
+  font-size:1.2rem;
+  margin-bottom:2rem;
+  font-weight:500;
+  letter-spacing:0.5px;
+}
+
+.search-box {
+  display:flex;
+  width:100%;
+  background: rgba(255,255,255,0.12);
+  border-radius: 16px;
+  overflow:hidden;
+  transition:0.3s ease;
+}
+
+.search-box:focus-within { box-shadow:0 0 30px rgba(129,140,248,0.6); transform: scale(1.02); }
+
+input {
+  flex:1;
+  border:none;
+  padding:1rem 1.2rem;
+  font-size:1rem;
+  color:#fff;
+  background:transparent;
+  outline:none;
+  transition: background 0.25s;
+}
+
+input:focus { background: rgba(255,255,255,0.05); }
+
+button {
+  background: linear-gradient(135deg,#6366f1,#4f46e5);
+  border:none;
+  color:white;
+  padding:1rem 1.5rem;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.3s;
+  border-radius:0 16px 16px 0;
+}
+
+button:hover { background: linear-gradient(135deg,#818cf8,#6366f1); transform: scale(1.05); }
+
+.controls {
+  margin-top:1.5rem;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:1rem;
+  flex-wrap:wrap;
+}
+
+select {
+  flex:1;
+  background: rgba(255,255,255,0.15);
+  border:none;
+  color:#e4e4ee;
+  padding:0.85rem 1rem;
+  border-radius:14px;
+  cursor:pointer;
+  outline:none;
+  transition:0.3s;
+}
+
+select:hover { background: rgba(255,255,255,0.25); }
+
+.list {
+  margin-top:1.2rem;
+  width:100%;
+  max-height:180px;
+  overflow-y:auto;
+  border-radius:14px;
+  background: rgba(255,255,255,0.06);
+  text-align:left;
+  font-size:0.95rem;
+  border:1px solid rgba(255,255,255,0.12);
+  transition: all 0.3s ease;
+}
+
+.list div {
+  padding:0.7rem 1rem;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+  cursor:pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.list div:hover { background: rgba(255,255,255,0.15); transform: translateX(5px); }
+
+.hidden { display:none; }
+
+.clear-btn {
+  margin-top:0.6rem;
+  background: rgba(239,68,68,0.25);
+  border:none;
+  color:#f87171;
+  padding:0.5rem 1rem;
+  border-radius:14px;
+  cursor:pointer;
+  font-size:0.85rem;
+  transition:0.25s;
+}
+
+.clear-btn:hover { background: rgba(239,68,68,0.45); }
+
+.settings-btn {
+  margin-top:1rem;
+  background: rgba(129,140,248,0.25);
+  border:none;
+  color:#818cf8;
+  padding:0.5rem 1rem;
+  border-radius:14px;
+  cursor:pointer;
+  font-size:0.85rem;
+  transition:0.25s;
+}
+
+.settings-btn:hover { background: rgba(129,140,248,0.45); }
+</style>
+</head>
+<body>
+<div id="tsparticles"></div>
+
+<div class="container">
+  <h1>Ethan’s Browser Portal 🌐</h1>
+  <div class="greeting" id="greeting"></div>
+  <div class="clock" id="clock"></div>
+
+  <div class="search-box">
+    <input type="text" id="query" placeholder="Search..." />
+    <button id="searchBtn">Go</button>
+  </div>
+
+  <div class="controls">
+    <select id="engineSelect">
+      <option value="https://search.brave.com/search?q=">Brave Search</option>
+      <option value="https://duckduckgo.com/?q=">DuckDuckGo</option>
+      <option value="https://www.ecosia.org/search?q=">Ecosia</option>
+      <option value="https://www.startpage.com/do/dsearch?query=">Startpage</option>
+      <option value="https://www.qwant.com/?q=">Qwant</option>
+      <option value="https://www.mojeek.com/search?q=">Mojeek</option>
+      <option value="https://search.yahoo.com/search?p=">Yahoo</option>
+      <option value="https://www.bing.com/search?q=">Bing</option>
+      <option value="https://yandex.com/search/?text=">Yandex</option>
+    </select>
+    <button id="historyBtn">History</button>
+  </div>
+
+  <div id="historyList" class="list hidden"></div>
+  <button id="clearHistory" class="clear-btn hidden">Clear History</button>
+  <button id="settingsBtn" class="settings-btn">Change Nickname</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/tsparticles@2/tsparticles.bundle.min.js"></script>
+<script>
+// Particles
+tsParticles.load("tsparticles", {
+  fpsLimit: 60,
+  background:{ color:"transparent" },
+  particles:{
+    number:{ value:80 },
+    color:{ value:["#818cf8","#a78bfa","#6366f1"] },
+    shape:{ type:"circle" },
+    opacity:{ value:0.5 },
+    size:{ value:{min:1,max:4} },
+    move:{ enable:true, speed:1.2, direction:"none", outModes:"bounce" },
+    links:{ enable:true, distance:120, color:"#818cf8", opacity:0.3, width:1 }
+  },
+  interactivity:{
+    events:{
+      onHover:{ enable:true, mode:"grab" },
+      onClick:{ enable:true, mode:"push" }
+    },
+    modes:{ grab:{ distance:150, links:{ opacity:0.6 } }, push:{ quantity:4 } }
+  },
+  detectRetina:true
+});
+
+// Clock
+const clock = document.getElementById("clock");
+function updateClock(){
+  const now = new Date();
+  const time = now.toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+  const date = now.toLocaleDateString([], { weekday:'long', month:'long', day:'numeric' });
+  clock.textContent = `${date} • ${time}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// Nickname and Greeting
+let nickname = localStorage.getItem("nickname");
+function askNickname(){
+  nickname = prompt("What's your nickname?") || "guest";
+  localStorage.setItem("nickname", nickname);
+  updateGreeting();
+}
+
+function updateGreeting(){
+  const hour = new Date().getHours();
+  let greet = "Hello";
+  if(hour>=5 && hour<12) greet="Good Morning";
+  else if(hour>=12 && hour<18) greet="Good Afternoon";
+  else greet="Good Evening";
+  document.getElementById("greeting").textContent = `${greet}, ${nickname}!`;
+}
+
+if(!nickname) askNickname();
+else updateGreeting();
+
+document.getElementById("settingsBtn").onclick = askNickname;
+
+// Search history
+const searchBtn = document.getElementById("searchBtn");
+const queryInput = document.getElementById("query");
+const engineSelect = document.getElementById("engineSelect");
+const historyBtn = document.getElementById("historyBtn");
+const historyList = document.getElementById("historyList");
+const clearHistoryBtn = document.getElementById("clearHistory");
+
+const savedEngine = localStorage.getItem("selectedEngine");
+if(savedEngine) engineSelect.value = savedEngine;
+engineSelect.addEventListener("change",()=>{ localStorage.setItem("selectedEngine",engineSelect.value); });
+
+let history = JSON.parse(localStorage.getItem("searchHistory") || "[]");
+
+function renderHistory(){
+  historyList.innerHTML="";
+  if(history.length===0) historyList.innerHTML="<div>No search history yet 🕐</div>";
+  else history.forEach(item=>{
+    const div=document.createElement("div");
+    div.textContent=item;
+    div.onclick=()=>window.open(engineSelect.value + encodeURIComponent(item), "_blank");
+    historyList.appendChild(div);
+  });
+}
+
+searchBtn.onclick=()=>{
+  const query=queryInput.value.trim();
+  if(!query) return;
+  history.unshift(query);
+  if(history.length>25) history.pop();
+  localStorage.setItem("searchHistory", JSON.stringify(history));
+  window.open(engineSelect.value + encodeURIComponent(query), "_blank");
+  queryInput.value="";
+};
+
+historyBtn.onclick=()=>{
+  const showing=!historyList.classList.contains("hidden");
+  historyList.classList.toggle("hidden", showing);
+  clearHistoryBtn.classList.toggle("hidden", showing);
+  if(!showing) renderHistory();
+};
+
+clearHistoryBtn.onclick=()=>{
+  if(confirm("Clear all search history?")){
+    history=[];
+    localStorage.removeItem("searchHistory");
+    renderHistory();
+  }
+};
+</script>
+</body>
+</html>
